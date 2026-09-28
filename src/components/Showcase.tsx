@@ -4,6 +4,11 @@ import gsap from "gsap";
 import Image from "next/image";
 import { useMediaQuery } from "react-responsive";
 
+/**
+ * Renders the Rocket Chip video, product details, and performance comparisons.
+ * Adds a pinned scroll animation for viewports wider than 1024px.
+ * @returns The chip showcase section.
+ */
 const Showcase = () => {
   const isTablet = useMediaQuery({ query: "(max-width: 1024px)" });
 
