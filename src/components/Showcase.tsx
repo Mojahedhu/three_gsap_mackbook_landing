@@ -16,23 +16,29 @@ const Showcase = () => {
     query: "(prefers-reduced-motion: reduce)",
   });
 
-  useGSAP(() => {
-    if (!isTablet && !prefersReducedMotion) {
-      const timeLine = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#showcase",
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-          pin: true,
-        },
-      });
+  useGSAP(
+    () => {
+      if (!isTablet && !prefersReducedMotion) {
+        const timeLine = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#showcase",
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+            pin: true,
+          },
+        });
 
-      timeLine
-        .to(".mask img", { transform: "scale(1.1)" })
-        .to(".content", { opacity: 1, y: 0, ease: "power1.in" });
-    }
-  }, [isTablet]);
+        timeLine
+          .to(".mask img", { transform: "scale(1.1)" })
+          .to(".content", { opacity: 1, y: 0, ease: "power1.in" });
+      }
+    },
+    {
+      dependencies: [isTablet, prefersReducedMotion],
+      revertOnUpdate: true,
+    },
+  );
   return (
     <section id="showcase">
       <div className="media">
