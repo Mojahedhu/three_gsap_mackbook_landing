@@ -157,7 +157,7 @@ body {
       .color-control {
         @apply flex-between gap-4 rounded-full bg-neutral-800 px-6 py-3;
 
-        div {
+        button {
           @apply size-7 cursor-pointer rounded-full;
         }
 
@@ -169,7 +169,7 @@ body {
       .size-control {
         @apply small-medium flex-between gap-2 rounded-full bg-neutral-800 px-6 py-2.5;
 
-        div {
+        button {
           @apply flex-center size-8 cursor-pointer rounded-full bg-white text-black;
         }
       }

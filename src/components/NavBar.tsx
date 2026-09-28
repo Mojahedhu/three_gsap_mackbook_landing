@@ -1,4 +1,4 @@
-import { navLinks } from "@/insex";
+import { navLinks } from "@/constants/insex";
 import Image from "next/image";
 
 const NavBar = () => {
