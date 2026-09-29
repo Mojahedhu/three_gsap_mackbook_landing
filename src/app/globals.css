@@ -207,7 +207,7 @@ body {
     }
 
     .content {
-      @apply text-dark-100 relative z-10 my-5 bg-black text-xl font-semibold lg:-mt-40 lg:opacity-0;
+      @apply text-dark-100 relative z-10 my-5 bg-black text-xl font-semibold min-[1025px]:opacity-0 lg:-mt-40;
 
       @media (prefers-reduced-motion: reduce) {
         @apply opacity-100;
