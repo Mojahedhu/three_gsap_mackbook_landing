@@ -7,20 +7,36 @@ import { useMediaQuery } from "react-responsive";
 // masonry => Pinterest
 const Highlights = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
+  const prefersReducedMotion = useMediaQuery({
+    query: "(prefers-reduced-motion: reduce)",
+  });
 
-  useGSAP(() => {
-    gsap.to([".left-column", ".right-column"], {
-      scrollTrigger: {
-        trigger: "#highlights",
-        start: isMobile ? "bottom bottom" : "top center",
-      },
-      y: 0,
-      opacity: 1,
-      stagger: 0.5,
-      duration: 1,
-      ease: "power1.inOut",
-    });
-  }, []);
+  useGSAP(
+    () => {
+      // Show both columns immediately without animation if reduced motion is requested
+      if (prefersReducedMotion) {
+        gsap.set([".left-column", ".right-column"], {
+          opacity: 1,
+          y: 0,
+        });
+        return;
+      }
+
+      // Normal scroll reveal animation for users who accept motion
+      gsap.to([".left-column", ".right-column"], {
+        scrollTrigger: {
+          trigger: "#highlights",
+          start: isMobile ? "bottom bottom" : "top center",
+        },
+        y: 0,
+        opacity: 1,
+        stagger: 0.5,
+        duration: 1,
+        ease: "power1.inOut",
+      });
+    },
+    { dependencies: [isMobile, prefersReducedMotion], revertOnUpdate: true },
+  );
 
   return (
     <section id="highlights">
