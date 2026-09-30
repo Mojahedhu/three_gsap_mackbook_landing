@@ -1,5 +1,5 @@
 import Features from "@/components/Features";
-import Footers from "@/components/Footers";
+
 import Hero from "@/components/Hero";
 import Highlights from "@/components/Highlights";
 
@@ -8,6 +8,7 @@ import Performance from "@/components/Performance";
 
 import ProductViewer from "@/components/ProductViewer";
 import Showcase from "@/components/Showcase";
+import Footer from "@/components/Footer";
 
 /**
  * Renders the landing page with navigation, hero, product viewer, and chip showcase.
@@ -23,7 +24,8 @@ export default function Home() {
       <Performance />
       <Features />
       <Highlights />
-      <Footers />
+
+      <Footer />
     </main>
   );
 }
