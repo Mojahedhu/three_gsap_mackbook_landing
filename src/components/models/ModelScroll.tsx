@@ -12,6 +12,9 @@ import gsap from "gsap";
 const ModelScroll = () => {
   const groupRef = useRef<Group>(null);
   const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
+  const prefersReducedMotion = useMediaQuery({
+    query: "(prefers-reduced-motion)",
+  });
   const setTexture = useMacbookStore((select) => select.setTexture);
 
   // Pre-load all texture videos during component mount
@@ -32,6 +35,11 @@ const ModelScroll = () => {
   }, []);
 
   useGSAP(() => {
+    if (prefersReducedMotion) {
+      gsap.set(".box1,.box2,.box3,.box4,.box5", { opacity: 1, y: 0 });
+      return;
+    }
+
     // 3D MODEL ROTATION animation
     const modelTimeLine = gsap.timeline({
       scrollTrigger: {
@@ -61,31 +69,31 @@ const ModelScroll = () => {
       });
     }
 
+    // Helper to update texture based on scroll direction when crossing checkpoints
+    const syncTexture = (forwardTexture: string, backwardTexture: string) => {
+      const isReversing = timeLine.scrollTrigger?.direction === -1;
+
+      // setTexture(isReversing ? backwardTexture : forwardTexture);
+      setTexture(forwardTexture);
+    };
+
     // Content & Texture Sync
     timeLine
       .call(() => setTexture("/videos/feature-1.mp4"))
       .to(".box1", { opacity: 1, y: 0, delay: 1 })
-      .call(() => setTexture("/videos/feature-2.mp4"))
+      .call(() => syncTexture("/videos/feature-2.mp4", "videos/feature-1.mp4"))
       .to(".box2", { opacity: 1, y: 0 })
-      .call(() => setTexture("/videos/feature-3.mp4"))
+      .call(() => syncTexture("/videos/feature-3.mp4", "videos/feature-2.mp4"))
       .to(".box3", { opacity: 1, y: 0 })
-      .call(() => setTexture("/videos/feature-4.mp4"))
+      .call(() => syncTexture("/videos/feature-4.mp4", "videos/feature-3.mp4"))
       .to(".box4", { opacity: 1, y: 0 })
-      .call(() => setTexture("/videos/feature-5.mp4"))
+      .call(() => syncTexture("/videos/feature-5.mp4", "videos/feature-4.mp4"))
       .to(".box5", { opacity: 1, y: 0 });
   }, []);
 
   return (
     <group ref={groupRef}>
-      <Suspense
-        fallback={
-          <Html>
-            <h1>loading...</h1>
-          </Html>
-        }
-      >
-        <MacbookModel scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]} />
-      </Suspense>
+      <MacbookModel scale={isMobile ? 0.05 : 0.08} position={[0, -1, 0]} />
     </group>
   );
 };

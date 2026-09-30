@@ -10,9 +10,10 @@ Title: macbook pro M3 16 inch 2024
 
 import { noChangeParts } from "@/constants/insex";
 import { useMacbookStore } from "@/store/store-provider";
-import { useGLTF, useVideoTexture } from "@react-three/drei";
-import { useEffect } from "react";
+import { useGLTF } from "@react-three/drei";
+import { Suspense, useEffect } from "react";
 import { Color, Mesh } from "three";
+import ScreenMaterial from "../three/ScreenMaterial";
 
 export function MacbookModel(props) {
   const { nodes, materials, scene } = useGLTF(
@@ -20,8 +21,6 @@ export function MacbookModel(props) {
   );
   const color = useMacbookStore((select) => select.color);
   const texture = useMacbookStore((select) => select.texture);
-
-  const screen = useVideoTexture(texture);
 
   useEffect(() => {
     scene.traverse((child) => {
@@ -124,7 +123,9 @@ export function MacbookModel(props) {
 
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshBasicMaterial map={screen} />
+        <Suspense fallback={<meshBasicMaterial color={"#1111"} />}>
+          <ScreenMaterial texture={texture} />
+        </Suspense>
       </mesh>
       <mesh
         geometry={nodes.Object_127.geometry}
