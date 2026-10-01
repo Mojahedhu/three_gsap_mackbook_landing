@@ -90,7 +90,7 @@ const Performance = () => {
 
       return mm.revert();
     },
-    { scope: sectionRef, dependencies: [isMobile] },
+    { scope: sectionRef, dependencies: [isMobile], revertOnUpdate: true },
   );
   return (
     <section id="performance" ref={sectionRef}>
