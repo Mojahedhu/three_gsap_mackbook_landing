@@ -89,7 +89,10 @@ const ModelScroll = () => {
       .to(".box4", { opacity: 1, y: 0 })
       .call(() => syncTexture("/videos/feature-5.mp4", "videos/feature-4.mp4"))
       .to(".box5", { opacity: 1, y: 0 });
-  }, []);
+  }, {
+    dependencies: [prefersReducedMotion],
+    revertOnUpdate: true,
+  });
 
   return (
     <group ref={groupRef}>
