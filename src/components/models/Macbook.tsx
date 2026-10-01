@@ -8,11 +8,40 @@ Source: https://sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b3031
 Title: macbook pro M3 16 inch 2024
 */
 
-import React from "react";
+import { noChangeParts } from "@/constants/insex";
+import { useMacbookStore } from "@/store/store-provider";
 import { useGLTF } from "@react-three/drei";
+import { Suspense, useEffect } from "react";
+import { Color, Material, Mesh, MeshStandardMaterial } from "three";
+import ScreenMaterial from "../three/ScreenMaterial";
+import type { GLTFResult, GroupProps } from "../three/type";
 
-export function MacbookModel(props) {
-  const { nodes, materials } = useGLTF("/models/macbook-transformed.glb");
+export function MacbookModel(props: GroupProps) {
+  const { nodes, materials, scene } = useGLTF(
+    "/models/macbook-transformed.glb",
+  ) as unknown as GLTFResult;
+  const color = useMacbookStore((select) => select.color);
+  const texture = useMacbookStore((select) => select.texture);
+
+  useEffect(() => {
+    if (!scene) return;
+
+    const applyColor = (mat: Material | Material[]) => {
+      if (Array.isArray(mat)) {
+        mat.forEach(applyColor);
+      } else if (mat instanceof MeshStandardMaterial) {
+        mat.color.set(color);
+      }
+    };
+
+    scene.traverse((child) => {
+      if (child instanceof Mesh) {
+        if (!noChangeParts.includes(child.name)) {
+          applyColor(child.material);
+        }
+      }
+    });
+  }, [color, scene]);
   return (
     <group {...props} dispose={null}>
       <mesh
@@ -102,9 +131,13 @@ export function MacbookModel(props) {
       />
       <mesh
         geometry={nodes.Object_123.geometry}
-        material={materials.sfCQkHOWyrsLmor}
+
         rotation={[Math.PI / 2, 0, 0]}
-      />
+      >
+        <Suspense fallback={<meshBasicMaterial color={"#EEE"} />}>
+          <ScreenMaterial texture={texture} />
+        </Suspense>
+      </mesh>
       <mesh
         geometry={nodes.Object_127.geometry}
         material={materials.ZCDwChwkbBfITSW}

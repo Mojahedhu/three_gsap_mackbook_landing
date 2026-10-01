@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   transpilePackages: ["three"],
   reactCompiler: true,
+  images: {
+    qualities: [75, 90],
+  },
 };
 
 export default nextConfig;
