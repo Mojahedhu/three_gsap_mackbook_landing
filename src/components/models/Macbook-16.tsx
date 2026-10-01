@@ -12,7 +12,14 @@ import { noChangeParts } from "@/constants/insex";
 import { useMacbookStore } from "@/store/store-provider";
 import { useGLTF, useTexture } from "@react-three/drei";
 import { useEffect } from "react";
-import { Color, Mesh, SRGBColorSpace, Texture } from "three";
+import {
+  Color,
+  Mesh,
+  SRGBColorSpace,
+  Texture,
+  Material,
+  MeshStandardMaterial,
+} from "three";
 import type { GLTFResult, GroupProps } from "@/components/three/type";
 
 export default function MacbookModel16(props: GroupProps) {
@@ -29,10 +36,18 @@ export default function MacbookModel16(props: GroupProps) {
   useEffect(() => {
     if (!scene) return;
 
+    const applyColor = (mat: Material | Material[]) => {
+      if (Array.isArray(mat)) {
+        mat.forEach(applyColor);
+      } else if (mat instanceof MeshStandardMaterial) {
+        mat.color.set(color);
+      }
+    };
+
     scene.traverse((child) => {
       if (child instanceof Mesh) {
         if (!noChangeParts.includes(child.name)) {
-          child.material.color = new Color(color);
+          applyColor(child.material);
         }
       }
     });

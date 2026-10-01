@@ -1,4 +1,5 @@
 import { ThreeElements } from "@react-three/fiber";
+
 import { Mesh, MeshStandardMaterial, Scene } from "three";
 // type definition for GLTF loader result
 type GLTFResult = {

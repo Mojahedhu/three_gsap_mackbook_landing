@@ -14,6 +14,8 @@ import { useGLTF, useTexture } from "@react-three/drei";
 import { useEffect } from "react";
 import { Color, Mesh, SRGBColorSpace, Texture } from "three";
 import type { GLTFResult, GroupProps } from "@/components/three/type";
+import { MeshStandardMaterial } from "three";
+import { Material } from "three";
 
 export default function MacbookModel14(props: GroupProps) {
   const { nodes, materials, scene } = useGLTF(
@@ -28,10 +30,19 @@ export default function MacbookModel14(props: GroupProps) {
 
   useEffect(() => {
     if (!scene) return;
+
+    const applyColor = (mat: Material | Material[]) => {
+      if (Array.isArray(mat)) {
+        mat.forEach(applyColor);
+      } else if (mat instanceof MeshStandardMaterial) {
+        mat.color.set(color);
+      }
+    };
+
     scene.traverse((child) => {
       if (child instanceof Mesh) {
         if (!noChangeParts.includes(child.name)) {
-          child.material.color = new Color(color);
+          applyColor(child.material);
         }
       }
     });

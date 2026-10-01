@@ -12,7 +12,7 @@ import { noChangeParts } from "@/constants/insex";
 import { useMacbookStore } from "@/store/store-provider";
 import { useGLTF } from "@react-three/drei";
 import { Suspense, useEffect } from "react";
-import { Color, Mesh } from "three";
+import { Color, Material, Mesh, MeshStandardMaterial } from "three";
 import ScreenMaterial from "../three/ScreenMaterial";
 import type { GLTFResult, GroupProps } from "../three/type";
 
@@ -24,10 +24,20 @@ export function MacbookModel(props: GroupProps) {
   const texture = useMacbookStore((select) => select.texture);
 
   useEffect(() => {
+    if (!scene) return;
+
+    const applyColor = (mat: Material | Material[]) => {
+      if (Array.isArray(mat)) {
+        mat.forEach(applyColor);
+      } else if (mat instanceof MeshStandardMaterial) {
+        mat.color.set(color);
+      }
+    };
+
     scene.traverse((child) => {
       if (child instanceof Mesh) {
         if (!noChangeParts.includes(child.name)) {
-          child.material.color = new Color(color);
+          applyColor(child.material);
         }
       }
     });
