@@ -24,7 +24,6 @@ export default function Home() {
       <Performance />
       <Features />
       <Highlights />
-
       <Footer />
     </main>
   );
