@@ -10,61 +10,85 @@ import { useMediaQuery } from "react-responsive";
 const Performance = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
   const sectionRef = useRef<HTMLDivElement>(null);
+  const mm = gsap.matchMedia();
 
   useGSAP(
     () => {
       const sectionEl = sectionRef.current;
       if (!sectionEl) return;
 
-      // Text animation
-      gsap.fromTo(
-        ".content p",
-        { opacity: 0, y: 10 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power1.out",
+      // 1. STANDARD MOTION: Run scroll animations when user HAS NOT requested reduced motion
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Text animation
+        gsap.fromTo(
+          ".content p",
+          { opacity: 0, y: 10 },
+          {
+            opacity: 1,
+            y: 0,
+            ease: "power1.out",
+            scrollTrigger: {
+              trigger: ".content p",
+              start: "top bottom",
+              end: "top center",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
+
+        if (isMobile) return;
+
+        // Image position timeLine
+        const tl = gsap.timeline({
           scrollTrigger: {
-            trigger: ".content p",
+            trigger: sectionEl,
             start: "top bottom",
-            end: "top center",
-            scrub: true,
+            end: "bottom center",
+            scrub: 1,
             invalidateOnRefresh: true,
           },
-        },
-      );
+        });
 
-      if (isMobile) return;
+        //  Position each performance Image
+        performanceImgPositions.forEach((item) => {
+          if (item.id === "p5") return;
 
-      // Image position timeLine
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionEl,
-          start: "top bottom",
-          end: "bottom center",
-          scrub: 1,
-          invalidateOnRefresh: true,
-        },
+          const selector = `.${item.id}`;
+          const vars: {
+            left?: string;
+            right?: string;
+            bottom?: string;
+            transform?: string | undefined;
+          } = {};
+
+          if (typeof item.left === "number") vars.left = `${item.left}%`;
+          if (typeof item.right === "number") vars.right = `${item.right}%`;
+          if (typeof item.bottom === "number") vars.bottom = `${item.bottom}%`;
+
+          tl.to(selector, vars, 0);
+        });
       });
 
-      //  Position each performance Image
-      performanceImgPositions.forEach((item) => {
-        if (item.id === "p5") return;
+      // 2. REDUCED MOTION: Immediately position elements without scroll animations
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        // Text animation (instant)
+        gsap.set(".content p", { opacity: 1, y: 0 });
+        if (isMobile) return;
 
-        const selector = `.${item.id}`;
-        const vars: {
-          left?: string;
-          right?: string;
-          bottom?: string;
-          transform?: string | undefined;
-        } = {};
-
-        if (typeof item.left === "number") vars.left = `${item.left}%`;
-        if (typeof item.right === "number") vars.right = `${item.right}%`;
-        if (typeof item.bottom === "number") vars.bottom = `${item.bottom}%`;
-
-        tl.to(selector, vars, 0);
+        // Image position (instant)
+        performanceImgPositions.forEach((item) => {
+          if (item.id === "p5") return;
+          const selector = `.${item.id}`;
+          const vars: Record<string, string> = {};
+          if (typeof item.left === "number") vars.left = `${item.left}%`;
+          if (typeof item.right === "number") vars.right = `${item.right}%`;
+          if (typeof item.bottom === "number") vars.bottom = `${item.bottom}%`;
+          gsap.set(selector, vars);
+        });
       });
+
+      return mm.revert();
     },
     { scope: sectionRef, dependencies: [isMobile] },
   );
