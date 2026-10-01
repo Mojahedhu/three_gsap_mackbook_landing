@@ -10,85 +10,95 @@ import { useMediaQuery } from "react-responsive";
 const Performance = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 1024px)" });
   const sectionRef = useRef<HTMLDivElement>(null);
-  const mm = gsap.matchMedia();
 
   useGSAP(
     () => {
       const sectionEl = sectionRef.current;
       if (!sectionEl) return;
+      const mm = gsap.matchMedia();
+      // 1. Desktop + no reduced motion
+      mm.add(
+        "(min-width: 1025px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          // Text animation
+          gsap.fromTo(
+            ".content p",
+            { opacity: 0, y: 10 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: "power1.out",
+              scrollTrigger: {
+                trigger: ".content p",
+                start: "top bottom",
+                end: "top center",
+                scrub: true,
+                invalidateOnRefresh: true,
+              },
+            },
+          );
 
-      // 1. STANDARD MOTION: Run scroll animations when user HAS NOT requested reduced motion
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // Text animation
-        gsap.fromTo(
-          ".content p",
-          { opacity: 0, y: 10 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power1.out",
+          // Image position timeLine
+          const tl = gsap.timeline({
             scrollTrigger: {
-              trigger: ".content p",
+              trigger: sectionEl,
               start: "top bottom",
-              end: "top center",
-              scrub: true,
+              end: "bottom center",
+              scrub: 1,
               invalidateOnRefresh: true,
             },
-          },
-        );
+          });
 
-        if (isMobile) return;
+          //  Desktop Floating collage animation (only run in desktop)
+          performanceImgPositions.forEach((item) => {
+            if (item.id === "p5") return;
 
-        // Image position timeLine
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionEl,
-            start: "top bottom",
-            end: "bottom center",
-            scrub: 1,
-            invalidateOnRefresh: true,
-          },
-        });
+            const selector = `.${item.id}`;
+            const vars: {
+              left?: string;
+              right?: string;
+              bottom?: string;
+              transform?: string | undefined;
+            } = {};
 
-        //  Position each performance Image
-        performanceImgPositions.forEach((item) => {
-          if (item.id === "p5") return;
+            if (typeof item.left === "number") vars.left = `${item.left}%`;
+            if (typeof item.right === "number") vars.right = `${item.right}%`;
+            if (typeof item.bottom === "number")
+              vars.bottom = `${item.bottom}%`;
 
-          const selector = `.${item.id}`;
-          const vars: {
-            left?: string;
-            right?: string;
-            bottom?: string;
-            transform?: string | undefined;
-          } = {};
+            tl.to(selector, vars, 0);
+          });
+        },
+      );
 
-          if (typeof item.left === "number") vars.left = `${item.left}%`;
-          if (typeof item.right === "number") vars.right = `${item.right}%`;
-          if (typeof item.bottom === "number") vars.bottom = `${item.bottom}%`;
+      // 2. MOBILE / TABLET + NO REDUCED MOTION (<=1024px)
+      mm.add(
+        "(max-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          // Text animation only (no desktop collage)
+          gsap.fromTo(
+            ".content p",
+            { opacity: 0, y: 10 },
+            {
+              opacity: 1,
+              y: 0,
+              scrollTrigger: {
+                trigger: ".content p",
+                start: "top bottom",
+                end: "top center",
+                scrub: true,
+              },
+            },
+          );
+        },
+      );
 
-          tl.to(selector, vars, 0);
-        });
-      });
-
-      // 2. REDUCED MOTION: Immediately position elements without scroll animations
+      // 3. REDUCED MOTION (All screen sizes)
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        // Text animation (instant)
         gsap.set(".content p", { opacity: 1, y: 0 });
-        if (isMobile) return;
-
-        // Image position (instant)
-        performanceImgPositions.forEach((item) => {
-          if (item.id === "p5") return;
-          const selector = `.${item.id}`;
-          const vars: Record<string, string> = {};
-          if (typeof item.left === "number") vars.left = `${item.left}%`;
-          if (typeof item.right === "number") vars.right = `${item.right}%`;
-          if (typeof item.bottom === "number") vars.bottom = `${item.bottom}%`;
-          gsap.set(selector, vars);
-        });
       });
 
-      return mm.revert();
+      return () => mm.revert();
     },
     { scope: sectionRef, dependencies: [isMobile], revertOnUpdate: true },
   );
