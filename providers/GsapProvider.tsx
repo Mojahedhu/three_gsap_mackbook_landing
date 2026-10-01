@@ -4,7 +4,6 @@ import { SplitText } from "gsap/all";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 if (typeof window !== "undefined") {
-  console.log("register");
   gsap.registerPlugin(ScrollTrigger, SplitText);
 }
 

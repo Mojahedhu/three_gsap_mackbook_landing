@@ -7,12 +7,20 @@ interface ScreenMaterialProps {
 }
 
 const ScreenMaterial = ({ texture }: ScreenMaterialProps) => {
-  const screen = useVideoTexture(texture);
+  const screen = useVideoTexture(texture, {
+    muted: true,
+    loop: true,
+    start: true,
+  });
 
   useEffect(() => {
+    const video = screen.image;
     return () => {
-      if (screen.image instanceof HTMLVideoElement) {
-        screen.image.pause();
+      if (video instanceof HTMLVideoElement) {
+        // Only pause if the video is actively playing to avoid interrupting pending play() promises
+        if (!video.paused) {
+          video.pause();
+        }
       }
       screen.dispose();
     };

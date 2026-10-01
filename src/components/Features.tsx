@@ -28,6 +28,7 @@ const Features = () => {
               alt={feature.highlight}
               width={40}
               height={40}
+              className="h-auto w-auto"
             />
             <p>
               <span className="text-white">{feature.highlight}</span>{" "}
